@@ -18,3 +18,10 @@ export type OtorisasiCredentialsMaping = {
     expiredAt?: Date
   }
 }
+
+export type KlasifikasiModelMapping = {
+  [publicId: string]: {
+    name: string,
+    clientId: string
+  }
+}
