@@ -4,7 +4,8 @@
   "description": "Official Klasifikasi API Library",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist && node ./node_modules/eslint/bin/eslint.js -c .eslintrc.js --ext .ts . && tsc --skipLibCheck"
   },
   "repository": {
     "type": "git",
