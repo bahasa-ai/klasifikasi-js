@@ -14,7 +14,8 @@
     "baseUrl": ".",
     "outDir": "dist",
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "declaration": true
   },
   "exclude": [
     "tests",
