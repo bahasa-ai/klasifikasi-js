@@ -28,7 +28,7 @@ export default class Klasifikasi {
             clientId: clientId,
             name: name
           }
-        } 
+        }
       }
 
       Klasifikasi.klasifikasiClient = new Klasifikasi(opts, otorisasiClient, models)
@@ -38,7 +38,7 @@ export default class Klasifikasi {
 
   private static async getModelInfo(baseUrl: string, clientToken: string): Promise<any> {
     try {
-      const request = createRequest(baseUrl, { authorization: `Bearer ${clientToken}`}, {})
+      const request = createRequest(baseUrl, { authorization: `Bearer ${clientToken}` }, {})
       const response = await request.get('/api/v1/auth/activeClient')
       return response.data
     } catch (error) {
@@ -47,7 +47,7 @@ export default class Klasifikasi {
     }
   }
 
-  
+
   public static getOtorisasiMapping(): OtorisasiCredentialsMaping {
     return this.klasifikasiClient.otorisasiClient.creds
   }
