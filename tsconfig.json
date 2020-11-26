@@ -17,9 +17,5 @@
     "skipLibCheck": true,
     "declaration": true
   },
-  "exclude": [
-    "tests",
-    "node_modules",
-    "dist"
-  ]
+  "exclude": ["tests", "node_modules", "dist"]
 }
