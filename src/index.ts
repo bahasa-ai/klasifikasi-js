@@ -18,7 +18,10 @@ export default class Klasifikasi {
         const { auth } = await Klasifikasi.getClientToken(opts.url, credentialData)
         const { model } = await Klasifikasi.getModelInfo(opts.url, auth?.token)
         if (model) {
-          const { publicId, name } = model
+          const { publicId, name, tags } = model
+          const _tags = tags && tags.length != 0 ? tags.map(val => {
+            return { name: val.name, description: val.description, descriptionWeight: val.descriptionWeight }
+          }) : []
           modelMapping[publicId] = {
             name: name,
             credential: {
@@ -26,7 +29,8 @@ export default class Klasifikasi {
               clientSecret: credentialData.clientSecret,
               token: auth?.token,
               expiredAt: auth?.expiredAfter
-            }
+            },
+            tags: _tags
           }
         }
       }
