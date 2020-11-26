@@ -91,7 +91,7 @@ export default class Klasifikasi {
       if (query.take) {
         _query.push(`take=${query.take}`)
       }
-      
+
       const request = createRequest(this.opts.url, { authorization: `Bearer ${token}` }, {})
       const response = await request.get(`${historyUrl}?${_query.join('&')}`)
       return response?.data
