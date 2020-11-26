@@ -36,6 +36,35 @@ export default class Klasifikasi {
     return Klasifikasi.klasifikasiClient
   }
 
+  public static async classify(publicId: string, query: string): Promise<any> {
+    if (!Klasifikasi.klasifikasiClient) {
+      throw { error: 'Please build first !' }
+    }
+    const client = Klasifikasi.client
+
+    const models = client.modelMapping
+    if (models[publicId]) {
+      const { token } = models[publicId].credential
+      const classifyResult = client._classify(publicId, query, token)
+      return classifyResult
+    } else {
+      throw { error: 'Model not found !' }
+    }
+  }
+
+  private async _classify(publicId: string, query: string, token: string): Promise<any> {
+    try {
+      const request = createRequest(this.opts.url, { authorization: `Bearer ${token}` }, {})
+      const response = await request.post(`/api/v1/classify/${publicId}`, {
+        query: query
+      })
+      return response?.data
+    } catch (error) {
+      const status = error?.response?.status ? error.response.status : 422
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to classify query into klasifikasi !' } }
+    }
+  }
+
   private static async getModelInfo(baseUrl: string, clientToken: string): Promise<any> {
     try {
       const request = createRequest(baseUrl, { authorization: `Bearer ${clientToken}` }, {})
@@ -58,6 +87,11 @@ export default class Klasifikasi {
       const status = error?.response?.status ? error.response.status : 422
       throw { status: status, body: { error: error?.response?.data?.error || 'Failed to client token from klasifikasi !' } }
     }
+  }
+
+  private static get client(): Klasifikasi {
+    if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
+    return Klasifikasi.klasifikasiClient
   }
 
   public static getModels(): KlasifikasiModelMapping {
