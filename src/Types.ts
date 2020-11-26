@@ -9,17 +9,19 @@ export type OtorisasiCredential = {
 }
 
 export type KlasifikasiModelMapping = {
-  [publicId: string]: {
+  [publicId: string]: KlasifikasiModel
+}
+
+export type KlasifikasiModel = {
+  name: string,
+  tags: {
     name: string,
-    tags: {
-      name: string,
-      description: string | null,
-      descriptionWeight: number | null
-    }[],
-    credential: OtorisasiCredential & {
-      token?: string,
-      expiredAt?: Date
-    }
+    description: string | null,
+    descriptionWeight: number | null
+  }[],
+  credential: OtorisasiCredential & {
+    token?: string,
+    expiredAt?: Date
   }
 }
 

@@ -1,5 +1,5 @@
 import 'source-map-support/register'
-import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential, LogQuery } from './Types'
+import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential, LogQuery, KlasifikasiModel } from './Types'
 import { BASE_URL } from './Constant'
 import { createRequest } from './Util/Request'
 export default class Klasifikasi {
@@ -41,32 +41,21 @@ export default class Klasifikasi {
   }
 
   public static async classify(publicId: string, query: string): Promise<any> {
-    if (!Klasifikasi.klasifikasiClient) {
-      throw { error: 'Please build first !' }
-    }
     const client = Klasifikasi.client
+    const model = client.getModel(publicId)
 
-    const models = client.modelMapping
-    if (models[publicId]) {
-      const { token } = models[publicId].credential
-      const classifyResult = client._classify(publicId, query, token)
-      return classifyResult
-    } else {
-      throw { error: 'Model not found !' }
-    }
+    const { token } = model.credential
+    const classifyResult = client._classify(publicId, query, token)
+    return classifyResult
   }
 
   public static async logs(publicId: string, query: LogQuery): Promise<any> {
     const client = Klasifikasi.client
+    const model = client.getModel(publicId)
 
-    const models = client.modelMapping
-    if (models[publicId]) {
-      const { token } = models[publicId].credential
-      const logs = client._histories(publicId, query, token)
-      return logs
-    } else {
-      throw { error: 'Model not found !' }
-    }
+    const { token } = model.credential
+    const logs = client._histories(publicId, query, token)
+    return logs
   }
 
   private async _classify(publicId: string, query: string, token: string): Promise<any> {
@@ -132,6 +121,12 @@ export default class Klasifikasi {
   private static get client(): Klasifikasi {
     if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
     return Klasifikasi.klasifikasiClient
+  }
+
+  private getModel(publicId: string): KlasifikasiModel {
+    if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
+    if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { error: `Model with publicId ${publicId} not found !` }
+    return Klasifikasi.klasifikasiClient.modelMapping[publicId]
   }
 
   public static getModels(): KlasifikasiModelMapping {
