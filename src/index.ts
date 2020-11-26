@@ -1,5 +1,5 @@
 import 'source-map-support/register'
-import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredentials } from './Types'
+import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential } from './Types'
 import { BASE_URL } from './Constant'
 import { createRequest } from './Util/Request'
 export default class Klasifikasi {
@@ -21,7 +21,7 @@ export default class Klasifikasi {
           const { publicId, name } = model
           modelMapping[publicId] = {
             name: name,
-            creds: {
+            credential: {
               clientId: credentialData.clientId,
               clientSecret: credentialData.clientSecret,
               token: auth?.token,
@@ -47,7 +47,7 @@ export default class Klasifikasi {
     }
   }
 
-  private static async getClientToken(baseUrl: string, cred: OtorisasiCredentials): Promise<any> {
+  private static async getClientToken(baseUrl: string, cred: OtorisasiCredential): Promise<any> {
     try {
       const request = createRequest(baseUrl, {}, {})
       const response = await request.post('/api/v1/auth/token', {

@@ -1,9 +1,9 @@
 export type KlasifikasiConfig = {
   url?: string,
-  creds: OtorisasiCredentials[]
+  creds: OtorisasiCredential[]
 }
 
-export type OtorisasiCredentials = {
+export type OtorisasiCredential = {
   clientId: string,
   clientSecret: string
 }
@@ -11,7 +11,7 @@ export type OtorisasiCredentials = {
 export type KlasifikasiModelMapping = {
   [publicId: string]: {
     name: string,
-    creds: OtorisasiCredentials & {
+    credential: OtorisasiCredential & {
       token?: string,
       expiredAt?: Date
     }
