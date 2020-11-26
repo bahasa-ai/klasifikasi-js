@@ -1,5 +1,5 @@
 import 'source-map-support/register'
-import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential } from './Types'
+import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential, LogQuery } from './Types'
 import { BASE_URL } from './Constant'
 import { createRequest } from './Util/Request'
 export default class Klasifikasi {
@@ -52,12 +52,48 @@ export default class Klasifikasi {
     }
   }
 
+  public static async logs(publicId: string, query: LogQuery): Promise<any> {
+    const client = Klasifikasi.client
+
+    const models = client.modelMapping
+    if (models[publicId]) {
+      const { token } = models[publicId].credential
+      const logs = client._histories(publicId, query, token)
+      return logs
+    } else {
+      throw { error: 'Model not found !' }
+    }
+  }
+
   private async _classify(publicId: string, query: string, token: string): Promise<any> {
     try {
       const request = createRequest(this.opts.url, { authorization: `Bearer ${token}` }, {})
       const response = await request.post(`/api/v1/classify/${publicId}`, {
         query: query
       })
+      return response?.data
+    } catch (error) {
+      const status = error?.response?.status ? error.response.status : 422
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to classify query into klasifikasi !' } }
+    }
+  }
+
+  private async _histories(publicId: string, query: LogQuery, token: string): Promise<any> {
+    try {
+      const historyUrl = `/api/v1/history/${publicId}`
+      const _query = [
+        `startedAt=${query.startedAt.toISOString()}`,
+        `endedAt=${query.endedAt.toISOString()}`,
+      ]
+      if (query.skip) {
+        _query.push(`skip=${query.skip}`)
+      }
+      if (query.take) {
+        _query.push(`take=${query.take}`)
+      }
+
+      const request = createRequest(this.opts.url, { authorization: `Bearer ${token}` }, {})
+      const response = await request.get(`${historyUrl}?${_query.join('&')}`)
       return response?.data
     } catch (error) {
       const status = error?.response?.status ? error.response.status : 422
