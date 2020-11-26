@@ -1,5 +1,5 @@
 import 'source-map-support/register'
-import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential, LogQuery } from './Types'
+import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential, LogQuery, KlasifikasiModel } from './Types'
 import { BASE_URL } from './Constant'
 import { createRequest } from './Util/Request'
 export default class Klasifikasi {
@@ -18,7 +18,10 @@ export default class Klasifikasi {
         const { auth } = await Klasifikasi.getClientToken(opts.url, credentialData)
         const { model } = await Klasifikasi.getModelInfo(opts.url, auth?.token)
         if (model) {
-          const { publicId, name } = model
+          const { publicId, name, tags } = model
+          const _tags = tags && tags.length != 0 ? tags.map(val => {
+            return { name: val.name, description: val.description, descriptionWeight: val.descriptionWeight }
+          }) : []
           modelMapping[publicId] = {
             name: name,
             credential: {
@@ -26,7 +29,8 @@ export default class Klasifikasi {
               clientSecret: credentialData.clientSecret,
               token: auth?.token,
               expiredAt: auth?.expiredAfter
-            }
+            },
+            tags: _tags
           }
         }
       }
@@ -37,32 +41,21 @@ export default class Klasifikasi {
   }
 
   public static async classify(publicId: string, query: string): Promise<any> {
-    if (!Klasifikasi.klasifikasiClient) {
-      throw { error: 'Please build first !' }
-    }
     const client = Klasifikasi.client
+    const model = client.getModel(publicId)
 
-    const models = client.modelMapping
-    if (models[publicId]) {
-      const { token } = models[publicId].credential
-      const classifyResult = client._classify(publicId, query, token)
-      return classifyResult
-    } else {
-      throw { error: 'Model not found !' }
-    }
+    const { token } = model.credential
+    const classifyResult = client._classify(publicId, query, token)
+    return classifyResult
   }
 
   public static async logs(publicId: string, query: LogQuery): Promise<any> {
     const client = Klasifikasi.client
+    const model = client.getModel(publicId)
 
-    const models = client.modelMapping
-    if (models[publicId]) {
-      const { token } = models[publicId].credential
-      const logs = client._histories(publicId, query, token)
-      return logs
-    } else {
-      throw { error: 'Model not found !' }
-    }
+    const { token } = model.credential
+    const logs = client._histories(publicId, query, token)
+    return logs
   }
 
   private async _classify(publicId: string, query: string, token: string): Promise<any> {
@@ -121,13 +114,19 @@ export default class Klasifikasi {
       return response?.data
     } catch (error) {
       const status = error?.response?.status ? error.response.status : 422
-      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to client token from klasifikasi !' } }
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to get client token from klasifikasi !', credential: cred } }
     }
   }
 
   private static get client(): Klasifikasi {
     if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
     return Klasifikasi.klasifikasiClient
+  }
+
+  private getModel(publicId: string): KlasifikasiModel {
+    if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
+    if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { error: `Model with publicId ${publicId} not found !` }
+    return Klasifikasi.klasifikasiClient.modelMapping[publicId]
   }
 
   public static getModels(): KlasifikasiModelMapping {
