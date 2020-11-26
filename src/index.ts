@@ -114,7 +114,7 @@ export default class Klasifikasi {
       return response?.data
     } catch (error) {
       const status = error?.response?.status ? error.response.status : 422
-      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to client token from klasifikasi !' } }
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to get client token from klasifikasi !', credential: cred } }
     }
   }
 
