@@ -17,3 +17,10 @@ export type KlasifikasiModelMapping = {
     }
   }
 }
+
+export type LogQuery = {
+  startedAt: Date,
+  endedAt: Date,
+  take?: number,
+  skip?: number
+}
