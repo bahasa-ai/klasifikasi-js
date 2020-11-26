@@ -1,37 +1,37 @@
 import 'source-map-support/register'
-import { KlasifikasiConfig, OtorisasiCredentialsMaping, KlasifikasiModelMapping } from './Types'
-import { Otorisasi } from './Service/Otorisasi'
+import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential } from './Types'
 import { BASE_URL } from './Constant'
 import { createRequest } from './Util/Request'
 export default class Klasifikasi {
 
   private static klasifikasiClient: Klasifikasi
 
-  private constructor(private opts: KlasifikasiConfig, private otorisasiClient: Otorisasi, private modelsMapping: KlasifikasiModelMapping) { }
+  private constructor(private opts: KlasifikasiConfig, private modelMapping: KlasifikasiModelMapping) { }
 
   public static async build(opts: KlasifikasiConfig): Promise<Klasifikasi> {
     if (!Klasifikasi.klasifikasiClient) {
 
-      opts.url = {
-        ...BASE_URL,
-        ...opts.url
-      }
+      opts.url = opts?.url ? opts.url : BASE_URL
 
-      const otorisasiClient = await Otorisasi.build(opts.url.otorisasi_url, opts.creds)
-      const models: KlasifikasiModelMapping = {}
-      for (const clientId of Object.keys(otorisasiClient.creds)) {
-        const { token } = otorisasiClient.creds[clientId]
-        const { model } = await this.getModelInfo(opts.url.klasifikasi_url, token)
+      const modelMapping: KlasifikasiModelMapping = {}
+      for (const credentialData of opts.creds) {
+        const { auth } = await Klasifikasi.getClientToken(opts.url, credentialData)
+        const { model } = await Klasifikasi.getModelInfo(opts.url, auth?.token)
         if (model) {
           const { publicId, name } = model
-          models[publicId] = {
-            clientId: clientId,
-            name: name
+          modelMapping[publicId] = {
+            name: name,
+            credential: {
+              clientId: credentialData.clientId,
+              clientSecret: credentialData.clientSecret,
+              token: auth?.token,
+              expiredAt: auth?.expiredAfter
+            }
           }
         }
       }
 
-      Klasifikasi.klasifikasiClient = new Klasifikasi(opts, otorisasiClient, models)
+      Klasifikasi.klasifikasiClient = new Klasifikasi(opts, modelMapping)
     }
     return Klasifikasi.klasifikasiClient
   }
@@ -47,13 +47,21 @@ export default class Klasifikasi {
     }
   }
 
-
-  public static getOtorisasiMapping(): OtorisasiCredentialsMaping {
-    return this.klasifikasiClient.otorisasiClient.creds
+  private static async getClientToken(baseUrl: string, cred: OtorisasiCredential): Promise<any> {
+    try {
+      const request = createRequest(baseUrl, {}, {})
+      const response = await request.post('/api/v1/auth/token', {
+        ...cred
+      })
+      return response?.data
+    } catch (error) {
+      const status = error?.response?.status ? error.response.status : 422
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to client token from klasifikasi !' } }
+    }
   }
 
   public static getModels(): KlasifikasiModelMapping {
-    return this.klasifikasiClient.modelsMapping
+    return this.klasifikasiClient.modelMapping
   }
 
 }
