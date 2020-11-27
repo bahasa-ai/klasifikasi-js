@@ -34,7 +34,6 @@ await Klasifikasi.build({
   ]
 })
 ```
-It will throw an error if the authentication process is failed.
 
 ## Classify
 You will need your model `publicId` to start classify with you model. You can get your model `publicId` from you model page, or you can get it from `Klasifikasi.getModels()`
@@ -42,7 +41,6 @@ You will need your model `publicId` to start classify with you model. You can ge
 const result = await Klasifikasi.classify('publicId', 'query')
 console.log(result)
 ```
-It will throw an error if something bad happen
 
 ## Logs
 You can get your classify logs based on your model `publicId`
@@ -55,4 +53,15 @@ const logs = Klasifikasi.logs('publicId', {
 })
 console.log(logs)
 ```
-`endedAt` & `startedAt` parameter is mandatory, the rest is optional. It will throw an error too if something bad happen.
+`endedAt` & `startedAt` parameter is mandatory, the rest is optional.
+
+## Error
+All the function above will throw an error if something bad happen. The error object will have the same structure.
+```json
+{
+  status?: number // http status codes,
+  body: {
+    error: string
+  }
+}
+```
