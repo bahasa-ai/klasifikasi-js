@@ -146,7 +146,7 @@ export default class Klasifikasi {
       token: auth?.token,
       expiredAt: auth?.expiredAfter
     }
-    console.log('token reloaded')
+
     return Klasifikasi.klasifikasiClient.modelMapping
   }
 
