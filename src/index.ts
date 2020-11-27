@@ -138,7 +138,7 @@ export default class Klasifikasi {
   private async reloadToken(publicId: string): Promise<KlasifikasiModelMapping> {
     if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
     if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { error: `Model with publicId ${publicId} not found !` }
-    
+
     const { credential } = Klasifikasi.klasifikasiClient.modelMapping[publicId]
     const { auth } = await Klasifikasi.getClientToken(this.opts.url, { clientId: credential.clientId, clientSecret: credential.clientSecret })
     Klasifikasi.klasifikasiClient.modelMapping[publicId].credential = {
