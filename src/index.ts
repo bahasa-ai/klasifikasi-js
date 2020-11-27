@@ -44,7 +44,10 @@ export default class Klasifikasi {
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
-    const { token } = model.credential
+    const { token, expiredAt } = model.credential
+    if (new Date() >= new Date(expiredAt)) {
+      await client.reloadToken(publicId)
+    }
     const classifyResult = client._classify(publicId, query, token)
     return classifyResult
   }
@@ -53,7 +56,10 @@ export default class Klasifikasi {
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
-    const { token } = model.credential
+    const { token, expiredAt } = model.credential
+    if (new Date() >= new Date(expiredAt)) {
+      await client.reloadToken(publicId)
+    }
     const logs = client._histories(publicId, query, token)
     return logs
   }
@@ -127,6 +133,21 @@ export default class Klasifikasi {
     if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
     if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { error: `Model with publicId ${publicId} not found !` }
     return Klasifikasi.klasifikasiClient.modelMapping[publicId]
+  }
+
+  private async reloadToken(publicId: string): Promise<KlasifikasiModelMapping> {
+    if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
+    if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { error: `Model with publicId ${publicId} not found !` }
+    
+    const { credential } = Klasifikasi.klasifikasiClient.modelMapping[publicId]
+    const { auth } = await Klasifikasi.getClientToken(this.opts.url, { clientId: credential.clientId, clientSecret: credential.clientSecret })
+    Klasifikasi.klasifikasiClient.modelMapping[publicId].credential = {
+      ...credential,
+      token: auth?.token,
+      expiredAt: auth?.expiredAfter
+    }
+    console.log('token reloaded')
+    return Klasifikasi.klasifikasiClient.modelMapping
   }
 
   public static getModels(): KlasifikasiModelMapping {
