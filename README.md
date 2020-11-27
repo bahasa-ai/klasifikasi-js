@@ -57,7 +57,7 @@ console.log(logs)
 
 ## Error
 All the function above will throw an error if something bad happen. The error object will have the same structure.
-```json
+```typescript
 {
   status?: number // http status codes,
   body: {
