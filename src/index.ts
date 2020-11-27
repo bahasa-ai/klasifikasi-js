@@ -125,20 +125,20 @@ export default class Klasifikasi {
   }
 
   private static get client(): Klasifikasi {
-    if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
+    if (!Klasifikasi.klasifikasiClient) throw { body: { error: 'Please build first !' } }
     return Klasifikasi.klasifikasiClient
   }
 
   private getModel(publicId: string): KlasifikasiModel {
-    if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
-    if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { error: `Model with publicId ${publicId} not found !` }
+    if (!Klasifikasi.klasifikasiClient) throw { body: { error: 'Please build first !' } }
+    if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { body: { error: `Model with publicId ${publicId} not found !` } }
     return Klasifikasi.klasifikasiClient.modelMapping[publicId]
   }
 
   private async reloadToken(publicId: string): Promise<KlasifikasiModelMapping> {
-    if (!Klasifikasi.klasifikasiClient) throw { error: 'Please build first !' }
-    if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { error: `Model with publicId ${publicId} not found !` }
-    
+    if (!Klasifikasi.klasifikasiClient) throw { body: { error: 'Please build first !' } }
+    if (!Klasifikasi.klasifikasiClient.modelMapping[publicId]) throw { body: { error: `Model with publicId ${publicId} not found !` } }
+
     const { credential } = Klasifikasi.klasifikasiClient.modelMapping[publicId]
     const { auth } = await Klasifikasi.getClientToken(this.opts.url, { clientId: credential.clientId, clientSecret: credential.clientSecret })
     Klasifikasi.klasifikasiClient.modelMapping[publicId].credential = {
