@@ -36,14 +36,47 @@ await Klasifikasi.build({
 ```
 
 ## Classify
-You will need your model `publicId` to start classify with you model. You can get your model `publicId` from you model page, or you can get it from `Klasifikasi.getModels()`
+You will need your model `publicId` to start classifying with your model. You can get your model `publicId` from you model page, or you can get it from here :
+```typescript
+const models = Klasifikasi.getModels()
+console.log(models)
+/*
+the output should be like this
+  {
+    [publicId: string]: {
+      name: string,
+      credential: {
+        clientId: string,
+        clientSecret: string,
+        token: string,
+        expiredAt: number
+      },
+      tags: {
+        name: string,
+        description: string | null,
+        descriptionWeight: string | null
+      }[]
+    }
+  }
+*/
+```
+classifying example
 ```typescript
 const result = await Klasifikasi.classify('publicId', 'query')
 console.log(result)
+/*
+the output should be like this
+  {
+    result: {
+      label: string,
+      score: number
+    }[]
+  }
+*/
 ```
 
 ## Logs
-You can get your classify logs based on your model `publicId`
+You can get your classifying logs based on your model `publicId`
 ```typescript
 const logs = Klasifikasi.logs('publicId', {
   startedAt: new Date('1 December 2020'),
@@ -52,6 +85,29 @@ const logs = Klasifikasi.logs('publicId', {
   skip: 0
 })
 console.log(logs)
+/*
+the output should be like this
+ {
+   histories: {
+     createdAt: Date,
+     updatedAt: Date,
+     deletedAt: Date,
+     id: number,
+     model: string,
+     modelResult: {
+       label: string,
+       score: number
+     }[]
+     modelCurrentName: string,
+     ipInfo: {
+       ip: string
+     },
+     userId: number,
+     aiModelId: number,
+   }[],
+   length: number
+ }
+*/
 ```
 `endedAt` & `startedAt` parameter is mandatory, the rest is optional.
 
