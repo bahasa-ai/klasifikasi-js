@@ -44,10 +44,13 @@ await Klasifikasi.build({
 ```
 
 ## Classify
-You will need your model `publicId` to start classifying with your model. You can get your model `publicId` from you model page, or you can get it from here :
+
+You will need your model `publicId` to start classifying with your model. You
+can get your model `publicId` from you model page, or you can get it from here :
+
 ```typescript
-const models = Klasifikasi.getModels()
-console.log(models)
+const models = Klasifikasi.getModels();
+console.log(models);
 /*
 the output should be like this
   {
@@ -68,10 +71,12 @@ the output should be like this
   }
 */
 ```
+
 classifying example
+
 ```typescript
-const result = await Klasifikasi.classify('publicId', 'query')
-console.log(result)
+const result = await Klasifikasi.classify("publicId", "query");
+console.log(result);
 /*
 the output should be like this
   {
@@ -84,15 +89,17 @@ the output should be like this
 ```
 
 ## Logs
+
 You can get your classifying logs based on your model `publicId`
+
 ```typescript
 const logs = Klasifikasi.logs("publicId", {
   startedAt: new Date("1 December 2020"),
   endedAt: new Date("2 December 2020"),
   take: 100,
-  skip: 0
-})
-console.log(logs)
+  skip: 0,
+});
+console.log(logs);
 /*
 the output should be like this
  {
