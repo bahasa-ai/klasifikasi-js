@@ -3,7 +3,7 @@
 Official [Klasifikasi](https://klasifikasi.com/) API Client Library
 
 ## Requirement
-Node v12
+Node v12 or later
 ## Installation
 
 `npm install klasifikasi-js`
