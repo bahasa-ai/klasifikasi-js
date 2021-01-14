@@ -44,10 +44,12 @@ export default class Klasifikasi {
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
-    const { token, expiredAt } = model.credential
+    const { expiredAt } = model.credential
     if (new Date() >= new Date(expiredAt)) {
       await client.reloadToken(publicId)
     }
+    const { token } = model.credential
+
     const classifyResult = client._classify(publicId, query, token)
     return classifyResult
   }
@@ -56,10 +58,12 @@ export default class Klasifikasi {
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
-    const { token, expiredAt } = model.credential
+    const { expiredAt } = model.credential
     if (new Date() >= new Date(expiredAt)) {
       await client.reloadToken(publicId)
     }
+    const { token } = model.credential
+
     const logs = client._histories(publicId, query, token)
     return logs
   }
@@ -72,10 +76,12 @@ export default class Klasifikasi {
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
-    const { token, expiredAt } = model.credential
+    const { expiredAt } = model.credential
     if (new Date() >= new Date(expiredAt)) {
       await client.reloadToken(publicId)
     }
+    const { token } = model.credential
+
     const result = client._brandonzClassify(query, tags, multiClass, token)
     return result
   }
@@ -89,10 +95,12 @@ export default class Klasifikasi {
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
-    const { token, expiredAt } = model.credential
+    const { expiredAt } = model.credential
     if (new Date() >= new Date(expiredAt)) {
       await client.reloadToken(publicId)
     }
+    const { token } = model.credential
+    
     const result = client._zslClassify(query, label, multiClass, token)
     return result
   }
