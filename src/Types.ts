@@ -31,3 +31,9 @@ export type LogQuery = {
   take?: number,
   skip?: number
 }
+
+export type Label = {
+  topic: string,
+  desc: string,
+  desc_weight: number
+}

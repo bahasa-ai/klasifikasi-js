@@ -1,5 +1,5 @@
 import 'source-map-support/register'
-import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential, LogQuery, KlasifikasiModel } from './Types'
+import { KlasifikasiConfig, KlasifikasiModelMapping, OtorisasiCredential, LogQuery, KlasifikasiModel, Label } from './Types'
 import { BASE_URL } from './Constant'
 import { createRequest } from './Util/Request'
 export default class Klasifikasi {
@@ -44,10 +44,12 @@ export default class Klasifikasi {
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
-    const { token, expiredAt } = model.credential
+    const { expiredAt } = model.credential
     if (new Date() >= new Date(expiredAt)) {
       await client.reloadToken(publicId)
     }
+    const { token } = model.credential
+
     const classifyResult = client._classify(publicId, query, token)
     return classifyResult
   }
@@ -56,12 +58,81 @@ export default class Klasifikasi {
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
-    const { token, expiredAt } = model.credential
+    const { expiredAt } = model.credential
     if (new Date() >= new Date(expiredAt)) {
       await client.reloadToken(publicId)
     }
+    const { token } = model.credential
+
     const logs = client._histories(publicId, query, token)
     return logs
+  }
+
+  public static async brandonzClassify(query: string, tags: Label[], multiClass: boolean): Promise<any> {
+    const models = Object.keys(Klasifikasi.getModels())
+    if (!models || models.length == 0) throw { body: { error: 'Please build first !' } }
+
+    const publicId = models[0]
+    const client = Klasifikasi.client
+    const model = client.getModel(publicId)
+
+    const { expiredAt } = model.credential
+    if (new Date() >= new Date(expiredAt)) {
+      await client.reloadToken(publicId)
+    }
+    const { token } = model.credential
+
+    const result = client._brandonzClassify(query, tags, multiClass, token)
+    return result
+  }
+
+
+  public static async zslClassify(query: string, label: string[], multiClass: boolean): Promise<any> {
+    const models = Object.keys(Klasifikasi.getModels())
+    if (!models || models.length == 0) throw { body: { error: 'Please build first !' } }
+
+    const publicId = models[0]
+    const client = Klasifikasi.client
+    const model = client.getModel(publicId)
+
+    const { expiredAt } = model.credential
+    if (new Date() >= new Date(expiredAt)) {
+      await client.reloadToken(publicId)
+    }
+    const { token } = model.credential
+
+    const result = client._zslClassify(query, label, multiClass, token)
+    return result
+  }
+
+  private async _zslClassify(query: string, label: string[], multiClass: boolean, token: string): Promise<any> {
+    try {
+      const request = createRequest(this.opts.url, { authorization: `Bearer ${token}` }, {})
+      const response = await request.post('/api/v1/ai/classify', {
+        sequence: query,
+        candidates: label,
+        multiClass: multiClass
+      })
+      return response?.data
+    } catch (error) {
+      const status = error?.response?.status ? error.response.status : 422
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to classify query into klasifikasi !' } }
+    }
+  }
+
+  private async _brandonzClassify(query: string, tags: Label[], multiClass: boolean, token: string): Promise<any> {
+    try {
+      const request = createRequest(this.opts.url, { authorization: `Bearer ${token}` }, {})
+      const response = await request.post('/api/v1/ai/brandonz/classify', {
+        sequence: query,
+        label:tags,
+        multiClass: multiClass
+      })
+      return response?.data
+    } catch (error) {
+      const status = error?.response?.status ? error.response.status : 422
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to classify query into klasifikasi !' } }
+    }
   }
 
   private async _classify(publicId: string, query: string, token: string): Promise<any> {
