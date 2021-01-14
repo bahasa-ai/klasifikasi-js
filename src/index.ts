@@ -86,7 +86,7 @@ export default class Klasifikasi {
     return result
   }
 
-  
+
   public static async zslClassify(query: string, label: string[], multiClass: boolean): Promise<any> {
     const models = Object.keys(Klasifikasi.getModels())
     if (!models || models.length == 0) throw { body: { error: 'Please build first !' } }
@@ -100,7 +100,7 @@ export default class Klasifikasi {
       await client.reloadToken(publicId)
     }
     const { token } = model.credential
-    
+
     const result = client._zslClassify(query, label, multiClass, token)
     return result
   }
