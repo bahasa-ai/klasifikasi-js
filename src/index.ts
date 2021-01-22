@@ -34,8 +34,31 @@ export default class Klasifikasi {
           }
         }
       }
-
       Klasifikasi.klasifikasiClient = new Klasifikasi(opts, modelMapping)
+    } else {
+
+      const credsData = opts.creds
+      const client = Klasifikasi.klasifikasiClient
+
+      for (const credentialData of credsData) {
+        const { auth } = await Klasifikasi.getClientToken(client.opts.url, credentialData)
+        const { model } = await Klasifikasi.getModelInfo(client.opts.url, auth?.token)
+
+        if (model && !client.modelMapping[model.publicId]) { // add the token
+          client.modelMapping[model.publicId] = {
+            name: model.name,
+            credential: {
+              ...credentialData,
+              token: auth?.token,
+              expiredAt: auth?.expiredAfter
+            },
+            tags: model.tags.map(val => {
+              return { name: val.name, description: val.description, descriptionWeight: val.descriptionWeight }
+            })
+          }
+        }
+
+      }
     }
     return Klasifikasi.klasifikasiClient
   }
@@ -68,11 +91,10 @@ export default class Klasifikasi {
     return logs
   }
 
-  public static async brandonzClassify(query: string, tags: Label[], multiClass: boolean): Promise<any> {
+  public static async brandonzClassify(publicId: string, query: string, tags: Label[], multiClass: boolean): Promise<any> {
     const models = Object.keys(Klasifikasi.getModels())
     if (!models || models.length == 0) throw { body: { error: 'Please build first !' } }
 
-    const publicId = models[0]
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
@@ -87,11 +109,10 @@ export default class Klasifikasi {
   }
 
 
-  public static async zslClassify(query: string, label: string[], multiClass: boolean): Promise<any> {
+  public static async zslClassify(publicId: string, query: string, label: string[], multiClass: boolean): Promise<any> {
     const models = Object.keys(Klasifikasi.getModels())
     if (!models || models.length == 0) throw { body: { error: 'Please build first !' } }
 
-    const publicId = models[0]
     const client = Klasifikasi.client
     const model = client.getModel(publicId)
 
