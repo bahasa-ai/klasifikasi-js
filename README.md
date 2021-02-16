@@ -95,7 +95,12 @@ the output should be like this
 or with dynamic tags
 
 ```typescript
-const result = await Klasifikasi.zslClassify("publicId", "query", ["tag1", "tag2", "etc"], multiClass);
+const result = await Klasifikasi.zslClassify(
+  "publicId",
+  "query",
+  ["tag1", "tag2", "etc"],
+  multiClass
+);
 console.log(result);
 /*
 the output should be like this
