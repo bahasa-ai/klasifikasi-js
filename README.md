@@ -113,6 +113,53 @@ the output should be like this
 */
 ```
 
+## QaModel find
+
+```typescript
+const result = await Klasifikasi.qamodelFind('Cara logging di javascript bagaimana ?', 'Cara logging pada javascript adalah console.log()')
+console.log(result)
+/** The output should be like this
+    [
+      {
+        answer: string,
+        context: string,
+        end: number,
+        score: number,
+        start: number
+      }
+    ] */
+```
+## QaModel bulk find
+```typescript
+const result = await Klasifikasi.qamodelBulkFind([
+      {
+        question: 'Kapan indonesia merdeka?',
+        context: 'Indonesia merdeka pada tanggal 17 Agustus 1945'
+      },
+      {
+        question: 'Hai ini rakyat indonesia memperingati hari kemerdekaan mereka yang ke berapa?',
+        context: 'Bulan ini, rakyat Indonesia akan memperingati hari kemerdekaan mereka yang ke 70 pada tanggal 17 Agustus'
+      }
+    ])
+console.log(result)
+/** The output should be like this
+{
+  result: [
+    {
+      answer: {
+        answer: string,
+        end: number,
+        score: number,
+        start: number
+      },
+      context: string,
+      question: string,
+    },
+    ...
+  ]
+} */
+```
+
 ## Logs
 
 You can get your classifying logs based on your model `publicId`
