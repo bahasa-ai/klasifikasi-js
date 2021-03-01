@@ -108,7 +108,6 @@ export default class Klasifikasi {
     return result
   }
 
-
   public static async zslClassify(publicId: string, query: string, label: string[], multiClass: boolean): Promise<any> {
     const models = Object.keys(Klasifikasi.getModels())
     if (!models || models.length == 0) throw { body: { error: 'Please build first !' } }
@@ -124,6 +123,68 @@ export default class Klasifikasi {
 
     const result = client._zslClassify(query, label, multiClass, token)
     return result
+  }
+
+  public static async qamodelBulkFind(data: { question: string, context: string }[]): Promise<any> {
+    const models = Object.keys(Klasifikasi.getModels())
+    if (!models || models.length == 0) throw { body: { error: 'Please build first !' } }
+
+    const client = Klasifikasi.client
+    const model = client.getModel(models[0]) // get first models
+
+    const { expiredAt } = model.credential
+    if (new Date() > new Date(expiredAt)) {
+      await client.reloadToken(models[0])
+    }
+    const { token } = model.credential
+
+    const result = await client._qamodelBulkFind(data, token)
+    return result
+  }
+
+  public static async qamodelFind(question: string, context: string): Promise<any> {
+    const models = Object.keys(Klasifikasi.getModels())
+    if (!models || models.length == 0) throw { body: { error: 'Please build first !' } }
+
+    const client = Klasifikasi.client
+    const model = client.getModel(models[0]) // get first models
+
+    const { expiredAt } = model.credential
+    if (new Date() > new Date(expiredAt)) {
+      await client.reloadToken(models[0])
+    }
+    const { token } = model.credential
+
+    const result = await client._qamodelFind(question, context, token)
+    return result
+  }
+
+  private async _qamodelBulkFind(data: { question: string, context: string }[], token: string): Promise<any> {
+    try {
+      const request = createRequest(this.opts.url, { authorization: `Bearer ${token}` }, {})
+      const response = await request.post('/api/v1/brandon/qamodel/bulk/find', {
+        questions: data
+      })
+      return response?.data
+    } catch (error) {
+      const status = error?.response?.status ? error.response.status : 422
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to bulk find answer into qamodel brandon !' } }
+    }
+
+  }
+
+  private async _qamodelFind(question: string, context: string, token: string): Promise<any> {
+    try {
+      const request = createRequest(this.opts.url, { authorization: `Bearer ${token}` }, {})
+      const response = await request.post('/api/v1/brandon/qamodel/find', {
+        question,
+        context
+      })
+      return response?.data
+    } catch (error) {
+      const status = error?.response?.status ? error.response.status : 422
+      throw { status: status, body: { error: error?.response?.data?.error || 'Failed to find answer into qamodel brandon !' } }
+    }
   }
 
   private async _zslClassify(query: string, label: string[], multiClass: boolean, token: string): Promise<any> {
